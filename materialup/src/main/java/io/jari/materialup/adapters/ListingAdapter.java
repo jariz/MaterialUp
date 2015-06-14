@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.github.florent37.materialimageloading.MaterialImageLoading;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import io.jari.materialup.R;
 import io.jari.materialup.activities.ItemActivity;
@@ -111,11 +113,20 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
             ((TextView)cardView.findViewById(R.id.views)).setText(item.views);
 
             if(item.imageUrl != null && !item.imageUrl.equals("")) {
-                ImageView image = (ImageView) cardView.findViewById(R.id.image);
+                final ImageView image = (ImageView) cardView.findViewById(R.id.image);
                 image.setVisibility(View.VISIBLE);
                 Picasso.with(context)
                         .load(item.imageUrl)
-                        .into(image);
+                        .into(image, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                MaterialImageLoading.animate(image).setDuration(1000).start();
+                            }
+
+                            @Override
+                            public void onError() {
+                            }
+                        });
             } else cardView.findViewById(R.id.image).setVisibility(View.GONE);
 
             ImageView avatar = (ImageView)cardView.findViewById(R.id.avatar);

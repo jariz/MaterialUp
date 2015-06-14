@@ -28,7 +28,6 @@
                 android:layout_height="wrap_content"
                 android:minHeight="200dp"
                 android:scaleType="centerCrop"
-                android:background="@color/gray"
                 android:layout_gravity="right|top"/>
 
             <TextView
