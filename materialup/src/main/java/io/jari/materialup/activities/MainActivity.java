@@ -4,10 +4,15 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import com.github.florent37.materialviewpager.MaterialViewPager;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import io.jari.materialup.R;
 import io.jari.materialup.fragments.ListingFragment;
 
@@ -91,26 +96,25 @@ public class MainActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withToolbar(materialViewPager.getToolbar())
                 .withActionBarDrawerToggle(true)
-//                .addDrawerItems(
-//                        new PrimaryDrawerItem().withName("All"),
-//                        new PrimaryDrawerItem().withName("Concepts"),
-//                        new PrimaryDrawerItem().withName("Live"),
-//                        new PrimaryDrawerItem().withName("Resources"),
-//                        new PrimaryDrawerItem().withName("Freebies")
-//                )
-//                .withTranslucentStatusBar(false)
-//                .withTranslucentStatusBarProgrammatically(false)
-//                .withTranslucentStatusBarShadow(false)
-//                .withOnDrawerItemSelectedListener(new Drawer.OnDrawerItemSelectedListener() {
-//                    @Override
-//                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
-//                        Log.w("BRUH", "TRIGGERS BRUH");
-//                    }
-//
-//                    @Override
-//                    public void onNothingSelected(AdapterView<?> adapterView) {
-//                    }
-//                })
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName("All"),
+                        new PrimaryDrawerItem().withName("Concepts"),
+                        new PrimaryDrawerItem().withName("Live"),
+                        new PrimaryDrawerItem().withName("Resources"),
+                        new PrimaryDrawerItem().withName("Freebies")
+                )
+                .withTranslucentStatusBar(false)
+                .withDisplayBelowStatusBar(true)
+                .withOnDrawerItemSelectedListener(new Drawer.OnDrawerItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
+                        Log.w("BRUH", "TRIGGERS BRUH");
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+                    }
+                })
                 .build();
 
     }

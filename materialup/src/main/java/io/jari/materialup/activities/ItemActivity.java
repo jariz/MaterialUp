@@ -8,13 +8,17 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
+import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import io.jari.materialup.R;
+import io.jari.materialup.adapters.DetailAdapter;
+import io.jari.materialup.api.Comment;
 import io.jari.materialup.api.Item;
 
 /**
@@ -25,7 +29,20 @@ public class ItemActivity extends AppCompatActivity {
     Target lqLoader = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            ((ImageView)findViewById(R.id.header)).setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+            ((ImageView)findViewById(R.id.backdrop)).setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+
+            Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+                public void onGenerated(Palette p) {
+                    int color = p.getVibrantColor(R.attr.colorPrimary);
+                    recyclerView.setAdapter(new DetailAdapter(new Comment[100], item, ItemActivity.this, color));
+                    findViewById(R.id.titlebox).setBackgroundColor(color);
+
+//                    if(swatch != null) {
+//                        ((TextView)findViewById(R.id.title)).setTextColor(swatch.getTitleTextColor());
+//                        ((TextView)findViewById(R.id.details)).setTextColor(swatch.getTitleTextColor());
+//                    }
+                }
+            });
         }
 
         @Override
@@ -40,6 +57,8 @@ public class ItemActivity extends AppCompatActivity {
     };
     CollapsingToolbarLayout toolbarLayout;
     Toolbar toolbar;
+    RecyclerView recyclerView;
+    Item item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,22 +66,28 @@ public class ItemActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_item);
 
-        toolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsingBar);
+        toolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
 
-        Item item = (Item)getIntent().getSerializableExtra("item");
+        item = (Item)getIntent().getSerializableExtra("item");
 
-        toolbar = (Toolbar) findViewById(R.id.anim_toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbarLayout.setTitle(item.title);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbar.setContentScrimColor(0x00FFFFFF); //hack to disable fullbleed
+
+        ((TextView)findViewById(R.id.title)).setText(item.title);
+        ((TextView)findViewById(R.id.details)).setText("by " + item.makerName);
+//        collapsingToolbar.setTitle(item.title);
 
         //set up recycler
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.recycler);
+        recyclerView = (RecyclerView)findViewById(R.id.scrollableview);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
         //first set the low quality pic
-        Picasso.with(this).setLoggingEnabled(true);
         Picasso.with(this)
                 .load(item.imageUrl)
                 .into(lqLoader);
