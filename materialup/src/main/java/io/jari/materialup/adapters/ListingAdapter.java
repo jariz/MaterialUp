@@ -18,7 +18,7 @@ import com.github.florent37.materialimageloading.MaterialImageLoading;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import io.jari.materialup.R;
-import io.jari.materialup.activities.ItemActivity;
+import io.jari.materialup.ui.activities.ItemActivity;
 import io.jari.materialup.api.Item;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
     public ListingAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         CardView card = (CardView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card, parent, false);
+                .inflate(R.layout.item_card, parent, false);
 
         return new ViewHolder(card, context);
     }

@@ -1,9 +1,11 @@
 package io.jari.materialup.api;
 
 import android.content.Context;
+
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -20,19 +22,19 @@ import java.util.ArrayList;
 public class API {
 
     public static Item[] getListing(String path, Context context, Integer page) throws IOException {
-        Document document = Jsoup.connect("http://www.materialup.com/"+path).timeout(30000).get();
+        Document document = Jsoup.connect("http://www.materialup.com/" + path).timeout(30000).get();
         ArrayList<Item> items = new ArrayList<Item>();
 
         Elements elements = document.select(".post-list-items .post-list-item");
-        for(Element element : elements) {
+        for (Element element : elements) {
             Item item = new Item();
             item.id = element.attr("id");
             item.title = element.select("h2").first().text();
-            if(item.title.equals("")) continue;
+            if (item.title.equals("")) continue;
             item.imageUrl = element.select("img.preview").first().attr("data-cfsrc");
-            if(item.imageUrl == null || item.imageUrl == "") continue;
+            if (item.imageUrl == null || item.imageUrl == "") continue;
             Element score = element.select("div.count").first();
-            if(score != null)
+            if (score != null)
                 item.score = score.text();
             else item.score = "0";
 
@@ -40,7 +42,7 @@ public class API {
             item.comments = element.select(".post__stats a:eq(1)").first().ownText();
 
             Element label = element.select(".post__label").first();
-            if(label != null)
+            if (label != null)
                 item.label = label.attr("alt").split(" ")[0];
             else item.label = "";
 
@@ -49,20 +51,20 @@ public class API {
             item.categoryName = category.text();
 
             Element maker = category.nextElementSibling();
-            if(maker != null) {
+            if (maker != null) {
                 item.makerName = maker.text();
                 item.makerUrl = maker.attr("href");
             } else {
                 //no url, try to get name eitherway
                 String[] parts = category.parent().text().split(" by ");
-                if(parts.length > 1)
+                if (parts.length > 1)
                     item.makerName = parts[1];
             }
 
-            if(item.makerName == null) continue;
+            if (item.makerName == null) continue;
 
             Element avatar = element.select(".avatar").first();
-            if(avatar != null) {
+            if (avatar != null) {
                 item.makerAvatar = avatar.attr("data-cfsrc");
             }
 
@@ -78,7 +80,7 @@ public class API {
     public static ItemDetails getItemDetails(String id) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("http://www.materialup.com/posts/"+id)
+                .url("http://www.materialup.com/posts/" + id)
                 .addHeader("Accept", "application/json")
                 .build();
 

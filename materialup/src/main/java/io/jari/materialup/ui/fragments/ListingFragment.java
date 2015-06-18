@@ -1,4 +1,4 @@
-package io.jari.materialup.fragments;
+package io.jari.materialup.ui.fragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -168,7 +168,7 @@ public class ListingFragment extends Fragment {
 
                             if(active && !refresh) {
                                 //retrigger setActive now that the list is loaded
-                                ListingFragment.this.setActive((MaterialViewPager)getActivity().findViewById(R.id.materialViewPager));
+                                ListingFragment.this.setActive((MaterialViewPager)getActivity().findViewById(R.id.material_view_pager));
                             }
 
                             if (refresh) {

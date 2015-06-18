@@ -1,4 +1,4 @@
-package io.jari.materialup.activities;
+package io.jari.materialup.ui.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -12,8 +12,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+
 import io.jari.materialup.R;
 import io.jari.materialup.api.Item;
 
@@ -25,7 +27,7 @@ public class ItemActivity extends AppCompatActivity {
     Target lqLoader = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            ((ImageView)findViewById(R.id.header)).setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+            ((ImageView) findViewById(R.id.header)).setImageDrawable(new BitmapDrawable(getResources(), bitmap));
         }
 
         @Override
@@ -47,16 +49,16 @@ public class ItemActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_item);
 
-        toolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsingBar);
+        toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingBar);
 
-        Item item = (Item)getIntent().getSerializableExtra("item");
+        Item item = (Item) getIntent().getSerializableExtra("item");
 
         toolbar = (Toolbar) findViewById(R.id.anim_toolbar);
         setSupportActionBar(toolbar);
         toolbarLayout.setTitle(item.title);
 
         //set up recycler
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.recycler);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);

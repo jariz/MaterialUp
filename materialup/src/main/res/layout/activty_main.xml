@@ -1,19 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.github.florent37.materialviewpager.MaterialViewPager
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/materialViewPager"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:viewpager_logo="@layout/header_logo"
-    app:viewpager_logoMarginTop="40dp"
-    app:viewpager_color="@color/primary"
-    app:viewpager_headerHeight="150dp"
-    app:viewpager_headerAlpha="1.0"
-    app:viewpager_hideLogoWithFade="true"
-    app:viewpager_hideToolbarAndTitle="true"
-    app:viewpager_enableToolbarElevation="true"
-    app:viewpager_parallaxHeaderFactor="1.5"
-    app:viewpager_headerAdditionalHeight="20dp"/>
+    tools:context=".MainActivity">
+
+    <com.github.florent37.materialviewpager.MaterialViewPager
+        android:id="@+id/material_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:viewpager_color="@color/primary"
+        app:viewpager_enableToolbarElevation="true"
+        app:viewpager_headerAdditionalHeight="20dp"
+        app:viewpager_headerAlpha="1.0"
+        app:viewpager_headerHeight="150dp"
+        app:viewpager_hideLogoWithFade="true"
+        app:viewpager_hideToolbarAndTitle="true"
+        app:viewpager_logo="@layout/header_logo"
+        app:viewpager_logoMarginTop="40dp"
+        app:viewpager_parallaxHeaderFactor="1.5" />
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/nav_header"
+        app:itemTextColor="#444444"
+        app:menu="@menu/nav_itens" />
+
+</android.support.v4.widget.DrawerLayout>

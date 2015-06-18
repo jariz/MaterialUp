@@ -4,4 +4,5 @@
     <color name="accent">#ff4081</color>
     <color name="dark">@color/indigo_700</color>
     <color name="gray">#ccc</color>
+    <color name="gray_2">#EEEEEE</color>
 </resources>
