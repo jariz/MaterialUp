@@ -63,7 +63,7 @@ public class ItemActivity extends AppCompatActivity {
                         recyclerView.setAdapter(new DetailAdapter(new Comment[100], item, ItemActivity.this, color));
 
                         toolbarLayout.setContentScrimColor(color);
-                        toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.primary_dark)));
+                        toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.dark)));
                     }
                 });
             }
