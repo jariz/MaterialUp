@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 //        setSupportActionBar(materialViewPager.getToolbar());
 //        materialViewPager.getViewPager().setCurrentItem(0);
 
-        buildDrawer();
+//        buildDrawer();
 
     }
 

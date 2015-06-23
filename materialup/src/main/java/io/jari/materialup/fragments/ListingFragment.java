@@ -15,17 +15,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.github.florent37.materialviewpager.MaterialViewPager;
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.florent37.materialviewpager.adapter.RecyclerViewMaterialAdapter;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import io.jari.materialup.R;
 import io.jari.materialup.adapters.ListingAdapter;
 import io.jari.materialup.api.API;
 import io.jari.materialup.api.Item;
 import io.jari.materialup.api.ItemDetails;
-import jp.wasabeef.picasso.transformations.ColorFilterTransformation;
+import jp.wasabeef.glide.transformations.ColorFilterTransformation;
 
 import java.util.Random;
 
@@ -77,24 +78,6 @@ public class ListingFragment extends Fragment {
         return view;
     }
 
-    Target picassoTarget = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            Log.i("LF.setActive", "Picasso is done. Setting drawable");
-            headerDrawable = new BitmapDrawable(getResources(), bitmap);
-            pager.setImageDrawable(headerDrawable, 400);
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-            Log.e("LF.setActive", "Picasso error'd");
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-        }
-    };
-
     Drawable headerDrawable;
     MaterialViewPager pager;
     boolean active;
@@ -137,10 +120,18 @@ public class ListingFragment extends Fragment {
 
                             Log.i("LF.setActive", "No cached header, Downloading new header " + itemDetails.imageUrl);
 
-                            Picasso.with(getActivity())
+                            Glide.with(getActivity())
                                     .load(itemDetails.imageUrl)
-                                    .transform(new ColorFilterTransformation(color))
-                                    .into(picassoTarget);
+                                    .asBitmap()
+                                    .transform(new ColorFilterTransformation(Glide.get(getActivity()).getBitmapPool(), color))
+                                    .into(new SimpleTarget<Bitmap>() {
+                                        @Override
+                                        public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
+                                            Log.i("LF.setActive", "Glide is done. Setting drawable");
+                                            headerDrawable = new BitmapDrawable(getResources(), bitmap);
+                                            pager.setImageDrawable(headerDrawable, 400);
+                                        }
+                                    });
 
                         }
                     });

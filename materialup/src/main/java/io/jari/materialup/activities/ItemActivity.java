@@ -5,8 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +14,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import io.jari.materialup.R;
 import io.jari.materialup.adapters.DetailAdapter;
 import io.jari.materialup.api.API;
@@ -30,32 +29,6 @@ import io.jari.materialup.api.ItemDetails;
  */
 public class ItemActivity extends AppCompatActivity {
 
-    Target headerLoader = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            ((ImageView)findViewById(R.id.backdrop)).setImageDrawable(new BitmapDrawable(getResources(), bitmap));
-
-            Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
-                public void onGenerated(Palette p) {
-                    int color = p.getVibrantColor(R.attr.colorPrimary);
-                    recyclerView.setAdapter(new DetailAdapter(new Comment[100], item, ItemActivity.this, color));
-
-                    toolbarLayout.setContentScrimColor(color);
-                    toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.primary_dark)));
-                }
-            });
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-        }
-    };
     CollapsingToolbarLayout toolbarLayout;
     Toolbar toolbar;
     RecyclerView recyclerView;
@@ -70,13 +43,11 @@ public class ItemActivity extends AppCompatActivity {
         toolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
 
         item = (Item)getIntent().getSerializableExtra("item");
+        toolbarLayout.setTitle(item.title);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle(item.title);
 
         //set up recycler
         recyclerView = (RecyclerView)findViewById(R.id.scrollableview);
@@ -84,11 +55,29 @@ public class ItemActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
+        final BitmapImageViewTarget header = new BitmapImageViewTarget((ImageView) findViewById(R.id.backdrop)) {
+            @Override
+            public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
+                super.onResourceReady(bitmap, glideAnimation);
+                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+                    public void onGenerated(Palette p) {
+                        int color = p.getVibrantColor(R.attr.colorPrimary);
+                        recyclerView.setAdapter(new DetailAdapter(new Comment[100], item, ItemActivity.this, color));
+
+                        toolbarLayout.setContentScrimColor(color);
+                        toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.primary_dark)));
+                    }
+                });
+            }
+        };
+
         //first set the low quality pic
-        Picasso.with(this)
+        Glide.with(this)
                 .load(item.imageUrl)
-//                .transform(new BlurTransformation(this, 10))
-                .into(headerLoader);
+                .asBitmap()
+//                .transform(new BlurTransformation(this, Glide.get(this).getBitmapPool(), 10))
+                .into(header);
+//                .into((ImageView) findViewById(R.id.backdrop));
 
         //now load hq pic
         new Thread(new Runnable() {
@@ -101,9 +90,11 @@ public class ItemActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             dismissLoader();
-                            Picasso.with(getApplicationContext())
+                            Glide.with(getApplicationContext())
                                     .load(itemDetails.imageUrl)
-                                    .into(headerLoader);
+                                    .crossFade()
+                                    .into((ImageView) findViewById(R.id.backdrop));
+//                                    .into(header);
                         }
                     });
                 } catch (Exception e) {
@@ -111,7 +102,7 @@ public class ItemActivity extends AppCompatActivity {
                 }
 
             }
-        });//.start();
+        }).start();
     }
 
     public static void launch(Activity activity, Item item) {

@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
-import com.github.florent37.materialimageloading.MaterialImageLoading;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.DrawableRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import io.jari.materialup.R;
 import io.jari.materialup.activities.ItemActivity;
 import io.jari.materialup.api.Item;
@@ -115,25 +116,22 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
             if(item.imageUrl != null && !item.imageUrl.equals("")) {
                 final ImageView image = (ImageView) cardView.findViewById(R.id.image);
                 image.setVisibility(View.VISIBLE);
-                Picasso.with(context)
-                        .load(item.imageUrl)
-                        .into(image, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                MaterialImageLoading.animate(image).setDuration(1000).start();
-                            }
+                Log.d("listingadapter", "asking glide to load " + item.imageUrl);
 
-                            @Override
-                            public void onError() {
-                            }
-                        });
+                DrawableRequestBuilder<String> request = Glide.with(context)
+                        .load(item.imageUrl)
+                        .centerCrop();
+
+                if(item.imageUrl.endsWith(".gif")) request.diskCacheStrategy(DiskCacheStrategy.SOURCE).centerCrop().into(image);
+                else request.into(image);
+
             } else cardView.findViewById(R.id.image).setVisibility(View.GONE);
 
             ImageView avatar = (ImageView)cardView.findViewById(R.id.avatar);
             boolean generateLetter = false;
             try {
                 if(item.makerAvatar != null && !item.makerAvatar.equals("")) {
-                    Picasso.with(context)
+                    Glide.with(context)
                             .load(item.makerAvatar)
                             .into(avatar);
                 } else {
@@ -142,7 +140,7 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
             }
             catch(NullPointerException e) {
                 //so there's like this weird bug where twitter doesn't pass a content-type.
-                //picasso doesn't know what to do and crashes.
+                //glide doesn't know what to do and crashes.
                 generateLetter = true;
             }
 

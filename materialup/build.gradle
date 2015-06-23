@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.1.1'
@@ -10,6 +11,7 @@ apply plugin: 'com.android.application'
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 android {
@@ -22,6 +24,8 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
     }
 
     compileOptions {
@@ -43,22 +47,15 @@ dependencies {
     compile 'com.android.support:cardview-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'org.jsoup:jsoup:1.8.2'
-
-    compile('com.mikepenz:materialdrawer:3.0.6@aar') {
-        transitive = true
-    }
-
-    compile ('com.github.florent37:materialviewpager:1.0.4@aar'){
-        transitive = true
-    }
-
+    compile('com.mikepenz:materialdrawer:3.0.6@aar') { transitive = true }
+    compile('com.github.florent37:materialviewpager:1.0.4@aar') { transitive = true }
     compile 'com.android.support:design:22.2.0'
-    compile 'jp.wasabeef:picasso-transformations:1.0.3@aar'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.pkmmte.view:circularimageview:1.1'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-
-    compile ('com.github.florent37:materialimageloading:1.0.1@aar'){
-        transitive=true
-    }
+    compile('com.github.florent37:materialimageloading:1.0.1@aar') { transitive = true }
+    compile 'com.github.bumptech.glide:glide:3.6.0'
+    compile 'com.github.bumptech.glide:okhttp-integration:1.3.0'
+    compile 'jp.wasabeef:glide-transformations:1.0.6@aar'
+    compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.2.3@aar'
 }
