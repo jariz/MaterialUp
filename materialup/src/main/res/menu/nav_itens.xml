@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/section_one"
+            android:checked="true"
+            android:icon="@drawable/ic_remove_red_eye_black_18dp"
+            android:title="Section one" />
+
+        <item
+            android:id="@+id/section_two"
+            android:icon="@drawable/ic_comment_black_18dp"
+            android:title="Section two" />
+
+        <item
+            android:id="@+id/section_three"
+            android:icon="@drawable/ic_thumb_up_black_18dp"
+            android:title="Section three" />
+
+        <item
+            android:id="@+id/section_four"
+            android:icon="@drawable/ic_comment_black_18dp"
+            android:title="Setion four" />
+
+    </group>
+</menu>

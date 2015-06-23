@@ -1,4 +1,4 @@
-package io.jari.materialup.activities;
+package io.jari.materialup.ui.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -41,16 +41,14 @@ public class ItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item);
 
         toolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
-
         item = (Item)getIntent().getSerializableExtra("item");
-        toolbarLayout.setTitle(item.title);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //set up recycler
-        recyclerView = (RecyclerView)findViewById(R.id.scrollableview);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
