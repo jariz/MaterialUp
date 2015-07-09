@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -43,6 +44,7 @@ public class ListingFragment extends Fragment {
     private String path;
     private int color;
     private boolean popular;
+    private boolean unitialized = true;
 
     public static ListingFragment newInstance(String path, boolean popular, int color) {
         ListingFragment listingFragment = new ListingFragment();
@@ -58,7 +60,7 @@ public class ListingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Bundle arguments = getArguments();
-        if(arguments != null) {
+        if (arguments != null) {
             this.path = arguments.getString("path");
             this.popular = arguments.getBoolean("popular");
             this.color = arguments.getInt("color");
@@ -72,13 +74,11 @@ public class ListingFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
-        //load initial data (without refresh)
-        loadData(false);
-
         return view;
     }
 
     Drawable headerDrawable;
+    ItemDetails headerDetails;
     MaterialViewPager pager;
     boolean active;
 
@@ -90,15 +90,28 @@ public class ListingFragment extends Fragment {
         active = true;
         this.pager = pager;
 
-        if(items == null) {
+        //fallback to primary color if color passed equals to 0
+        if (color == 0) color = getResources().getColor(R.color.primary);
+
+        pager.setColor(color, 400);
+        Log.i("LF.setActive", "Color set to " + color);
+//        pager.setImageDrawable(new ColorDrawable(getResources().getColor(android.R.color.transparent)), 400);
+
+        //check if we've been active before. if not, start loading data.
+        Log.d("LF.setActive", "unitialized = " + unitialized);
+        if (unitialized) {
+            unitialized = false;
+
+            //load initial data (without refresh)
+            loadData(false);
+        }
+
+        if (items == null) {
             Log.i("LF.setActive", "No items set, not downloading header and waiting for loadData to call me.");
             return;
         }
 
-        pager.setColor(color, 400);
-        Log.i("LF.setActive", "Color set to " + color);
-
-        if(headerDrawable != null) {
+        if (headerDrawable != null) {
             Log.i("LF.setActive", "Setting cached header");
             pager.setImageDrawable(headerDrawable, 400);
             return;
@@ -107,21 +120,30 @@ public class ListingFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //get random item
-                Item item = items[new Random().nextInt(items.length)];
                 try {
-                    final ItemDetails itemDetails = API.getItemDetails(item.id);
+                    //get random item
+                    Item item = items[new Random().nextInt(items.length)];
+
+                    if(headerDetails == null)
+                        headerDetails = API.getItemDetails(item.id);
+
+                    if(headerDetails.imageUrl == null) {
+                        //no suitable image found, remove the image from drawer, leaving just the color
+                        pager.setImageDrawable(new ColorDrawable(getResources().getColor(android.R.color.transparent)), 400);
+                    }
+
+                    //is this still the
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             int color = ListingFragment.this.color;
-                            color = (120 << 24 ) | ( color & 0x00ffffff );
+                            color = (120 << 24) | (color & 0x00ffffff);
 
-                            Log.i("LF.setActive", "No cached header, Downloading new header " + itemDetails.imageUrl);
+                            Log.i("LF.setActive", "No cached header, Downloading new header " + headerDetails.imageUrl);
 
                             Glide.with(getActivity())
-                                    .load(itemDetails.imageUrl)
+                                    .load(headerDetails.imageUrl)
                                     .asBitmap()
                                     .transform(new ColorFilterTransformation(Glide.get(getActivity()).getBitmapPool(), color))
                                     .into(new SimpleTarget<Bitmap>() {
@@ -157,9 +179,9 @@ public class ListingFragment extends Fragment {
                             recyclerView.setAdapter(recyclerViewMaterialAdapter);
                             MaterialViewPagerHelper.registerRecyclerView(getActivity(), recyclerView, null);
 
-                            if(active && !refresh) {
+                            if (active && !refresh) {
                                 //retrigger setActive now that the list is loaded
-                                ListingFragment.this.setActive((MaterialViewPager)getActivity().findViewById(R.id.material_view_pager));
+                                ListingFragment.this.setActive((MaterialViewPager) getActivity().findViewById(R.id.material_view_pager));
                             }
 
                             if (refresh) {
@@ -174,8 +196,7 @@ public class ListingFragment extends Fragment {
                 } catch (Exception e) {
 //                    errorSnack(e);
                     e.printStackTrace();
-                }
-                finally {
+                } finally {
                     try {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -185,8 +206,7 @@ public class ListingFragment extends Fragment {
                                 else dismissLoader();
                             }
                         });
-                    }
-                    catch(Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }

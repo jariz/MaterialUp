@@ -4,9 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.ViewGroup;
-
 import com.github.florent37.materialviewpager.MaterialViewPager;
-
 import io.jari.materialup.R;
 import io.jari.materialup.ui.fragments.ListingFragment;
 
@@ -32,7 +30,7 @@ public class MainActivity extends NavDrawerActivity {
 
             @Override
             public int getCount() {
-                return 2;
+                return 5;
             }
 
             @Override
@@ -61,7 +59,13 @@ public class MainActivity extends NavDrawerActivity {
                     case 0:
                         return ListingFragment.newInstance("posts/c/all", false, getResources().getColor(R.color.primary));
                     case 1:
-                        return ListingFragment.newInstance("posts/c/all", true, getResources().getColor(R.color.red_600));
+                        return ListingFragment.newInstance("posts/c/concepts", false, getResources().getColor(R.color.red_600));
+                    case 2:
+                        return ListingFragment.newInstance("posts/c/live", false, getResources().getColor(R.color.teal_600));
+                    case 3:
+                        return ListingFragment.newInstance("posts/c/resources", false, getResources().getColor(R.color.yellow_600));
+                    case 4:
+                        return ListingFragment.newInstance("posts/c/freebies", false, getResources().getColor(R.color.orange_600));
                 }
                 return null;
             }
@@ -70,15 +74,22 @@ public class MainActivity extends NavDrawerActivity {
             public CharSequence getPageTitle(int position) {
                 switch (position) {
                     case 0:
-                        return "Latest";
+                        return "All";
                     case 1:
-                        return "Popular";
+                        return "Concepts";
+                    case 2:
+                        return "Live";
+                    case 3:
+                        return "Resources";
+                    case 4:
+                        return "Freebies";
                 }
                 return "";
             }
         });
 
         materialViewPager.getPagerTitleStrip().setViewPager(materialViewPager.getViewPager());
+        materialViewPager.getToolbar().setTitle("MaterialUp");
 
     }
 }

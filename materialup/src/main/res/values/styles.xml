@@ -11,7 +11,7 @@
 
         <!-- Toolbar Theme / Apply white arrow -->
         <item name="colorControlNormal">@android:color/white</item>
-        <item name="actionBarTheme">@style/AppTheme.ActionBarTheme</item>
+        <item name="actionBarTheme">@style/Theme.MaterialUp.ActionBarTheme</item>
 
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/dark</item>

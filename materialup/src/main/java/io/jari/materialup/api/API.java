@@ -6,6 +6,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -90,8 +91,27 @@ public class API {
         Document document = Jsoup.parse(html);
         ItemDetails itemDetails = new ItemDetails();
 
-        itemDetails.imageUrl = document.select("img.preview").first().attr("src");
+        Element img = document.select("img.preview").first();
+
+        if(img != null)
+            itemDetails.imageUrl = img.attr("src");
 
         return itemDetails;
+    }
+
+    public static Comment[] getComments(String id) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("http://www.materialup.com/posts/" + id + "/comments")
+                .build();
+
+        Response response = client.newCall(request).execute();
+        JSONArray comments = new JSONArray(response.body().string());
+
+        for(int i = 0; i < comments.length(); i++) {
+            JSONObject jcomment = (JSONObject)comments.get(i);
+        }
+
+        return null;
     }
 }

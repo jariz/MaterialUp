@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,12 +26,13 @@ import io.jari.materialup.api.ItemDetails;
 /**
  * Created by jari on 12/06/15.
  */
-public class ItemActivity extends AppCompatActivity {
+public class ItemActivity extends BaseActivity {
 
     CollapsingToolbarLayout toolbarLayout;
     Toolbar toolbar;
     RecyclerView recyclerView;
     Item item;
+    DetailAdapter detailAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +46,14 @@ public class ItemActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(item.title);
 
         //set up recycler
         recyclerView = (RecyclerView) findViewById(R.id.recycler);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(new DetailAdapter(new Comment[0], item, ItemActivity.this));
 
         final BitmapImageViewTarget header = new BitmapImageViewTarget((ImageView) findViewById(R.id.backdrop)) {
             @Override
@@ -60,7 +62,7 @@ public class ItemActivity extends AppCompatActivity {
                 Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
                     public void onGenerated(Palette p) {
                         int color = p.getVibrantColor(R.attr.colorPrimary);
-                        recyclerView.setAdapter(new DetailAdapter(new Comment[100], item, ItemActivity.this, color));
+                        detailAdapter.setColor(color);
 
                         toolbarLayout.setContentScrimColor(color);
                         toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.dark)));
@@ -70,11 +72,11 @@ public class ItemActivity extends AppCompatActivity {
         };
 
         //first set the low quality pic
-        Glide.with(this)
-                .load(item.imageUrl)
-                .asBitmap()
+//        Glide.with(this)
+//                .load(item.imageUrl)
+//                .asBitmap()
 //                .transform(new BlurTransformation(this, Glide.get(this).getBitmapPool(), 10))
-                .into(header);
+//                .into(header);
 //                .into((ImageView) findViewById(R.id.backdrop));
 
         //now load hq pic
@@ -90,9 +92,10 @@ public class ItemActivity extends AppCompatActivity {
                             dismissLoader();
                             Glide.with(getApplicationContext())
                                     .load(itemDetails.imageUrl)
-                                    .crossFade()
-                                    .into((ImageView) findViewById(R.id.backdrop));
-//                                    .into(header);
+//                                    .crossFade()
+//                                    .into((ImageView) findViewById(R.id.backdrop));
+                                    .asBitmap()
+                                    .into(header);
                         }
                     });
                 } catch (Exception e) {
@@ -101,6 +104,26 @@ public class ItemActivity extends AppCompatActivity {
 
             }
         }).start();
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                final Comment[] comments;
+//                try {
+//                     comments = API.getComments(item.id);
+//                } catch(Exception e) {
+//                    e.printStackTrace();
+//                    return;
+//                }
+//
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                    }
+//                });
+//            }
+//        }).start();
     }
 
     public static void launch(Activity activity, Item item) {

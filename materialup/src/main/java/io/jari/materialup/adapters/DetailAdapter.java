@@ -25,11 +25,10 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
     private Item item;
     private int color;
 
-    public DetailAdapter(Comment[] dataSet, Item details, Activity context, int color) {
+    public DetailAdapter(Comment[] dataSet, Item details, Activity context) {
         this.dataSet = new ArrayList<Comment>(Arrays.asList(dataSet));
         this.context = context;
         this.item = details;
-        this.color = color;
     }
 
     public void removeAll() {
@@ -70,18 +69,24 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(resource, parent, false);
 
-        if(viewType != 0) {
-            view.setBackgroundColor(color);
-        }
+        if(viewType == TYPE_DETAILS) view.setBackgroundColor(color);
 
         return new ViewHolder(view, viewType, context);
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+        this.notifyItemChanged(0);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if(position > 0)
             holder.update(dataSet.get(position - 1));
-        else holder.update(item);
+        else {
+            holder.update(item);
+            holder.setColor(color);
+        }
     }
 
     @Override
@@ -110,6 +115,10 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
             view = v;
             this.viewType = ViewType;
             this.context = context;
+        }
+
+        public void setColor(int color) {
+            view.setBackgroundColor(color);
         }
 
         public void update(Object object) {
