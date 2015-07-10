@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.ViewGroup;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.github.florent37.materialviewpager.MaterialViewPager;
 import io.jari.materialup.R;
 import io.jari.materialup.ui.fragments.ListingFragment;
@@ -13,7 +15,8 @@ import io.jari.materialup.ui.fragments.ListingFragment;
  */
 public class MainActivity extends NavDrawerActivity {
 
-    private MaterialViewPager materialViewPager;
+    @Bind(R.id.material_view_pager)
+    MaterialViewPager materialViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,9 +24,9 @@ public class MainActivity extends NavDrawerActivity {
 
         setContentView(R.layout.activty_main);
 
-        setMenuIcon();
+        ButterKnife.bind(this);
 
-        materialViewPager = (MaterialViewPager) findViewById(R.id.material_view_pager);
+        setMenuIcon();
 
         materialViewPager.getViewPager().setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             int oldPosition = -1;

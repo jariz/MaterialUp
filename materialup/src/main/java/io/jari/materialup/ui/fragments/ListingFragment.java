@@ -16,6 +16,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -36,8 +39,13 @@ import java.util.Random;
  */
 public class ListingFragment extends Fragment {
 
-    private RecyclerView recyclerView;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.recycler)
+    RecyclerView recyclerView;
+    @Bind(R.id.swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.progressBar)
+    ProgressBar progressBar;
+
     private ListingAdapter listingAdapter;
     private View view;
     private Item[] items;
@@ -45,6 +53,11 @@ public class ListingFragment extends Fragment {
     private int color;
     private boolean popular;
     private boolean unitialized = true;
+
+    private Drawable headerDrawable;
+    private ItemDetails headerDetails;
+    private MaterialViewPager pager;
+    private boolean active;
 
     public static ListingFragment newInstance(String path, boolean popular, int color) {
         ListingFragment listingFragment = new ListingFragment();
@@ -67,7 +80,8 @@ public class ListingFragment extends Fragment {
         }
 
         view = inflater.inflate(R.layout.listing, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+
+        ButterKnife.bind(this, view);
 
         //set up recycler
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -76,11 +90,6 @@ public class ListingFragment extends Fragment {
 
         return view;
     }
-
-    Drawable headerDrawable;
-    ItemDetails headerDetails;
-    MaterialViewPager pager;
-    boolean active;
 
     public void setInactive(final MaterialViewPager pager) {
         active = false;
@@ -215,11 +224,10 @@ public class ListingFragment extends Fragment {
     }
 
     public void dismissLoader() {
-        final View prog = view.findViewById(R.id.progressBar);
-        prog.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+        progressBar.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                prog.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

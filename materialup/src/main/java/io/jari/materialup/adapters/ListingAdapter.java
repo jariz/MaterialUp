@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.bumptech.glide.DrawableRequestBuilder;
@@ -38,18 +40,18 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
     }
 
     public void removeAll() {
-        for (int i = dataSet.size()-1; i >= 0; i--) {
+        for (int i = dataSet.size() - 1; i >= 0; i--) {
             remove(dataSet.get(i));
         }
     }
 
     public void add(Item item) {
         dataSet.add(item);
-        notifyItemInserted(dataSet.size()-1);
+        notifyItemInserted(dataSet.size() - 1);
     }
 
     public void addItems(Item[] items) {
-        for(Item item : items) {
+        for (Item item : items) {
             add(item);
         }
     }
@@ -91,29 +93,50 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
             cardView = v;
             this.context = context;
 
+            ButterKnife.bind(this, v);
+
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ItemActivity.launch(context, item);
-//                    ViewItemActivity.launch(ViewHolder.this.context, cardView.findViewById(R.id.card_image), item);
                 }
             });
         }
 
+        @Bind(R.id.title)
+        TextView title;
+        @Bind(R.id.details)
+        TextView details;
+        @Bind(R.id.label)
+        TextView label;
+        @Bind(R.id.score)
+        TextView score;
+        @Bind(R.id.comments)
+        TextView comments;
+        @Bind(R.id.views)
+        TextView views;
+        @Bind(R.id.avatar)
+        ImageView avatar;
+
+
         public void update(Item item) {
             this.item = item;
-            ((TextView)cardView.findViewById(R.id.title)).setText(item.title);
-            ((TextView)cardView.findViewById(R.id.details)).setText(item.categoryName + " by " + item.makerName);
+            title.setText(item.title);
+            details.setText(item.categoryName + " by " + item.makerName);
 
-            TextView label = (TextView)cardView.findViewById(R.id.label);
-            label.setBackgroundColor(ColorGenerator.MATERIAL.getColor(item.label));
-            label.setText(item.label);
+            if (item.label.equals("")) {
+                label.setVisibility(View.GONE);
+            } else {
+                label.setVisibility(View.VISIBLE);
+                label.setBackgroundColor(ColorGenerator.MATERIAL.getColor(item.label));
+                label.setText(item.label);
+            }
 
-            ((TextView)cardView.findViewById(R.id.score)).setText(item.score);
-            ((TextView)cardView.findViewById(R.id.comments)).setText(item.comments);
-            ((TextView)cardView.findViewById(R.id.views)).setText(item.views);
+            score.setText(item.score);
+            comments.setText(item.comments);
+            views.setText(item.views);
 
-            if(item.imageUrl != null && !item.imageUrl.equals("")) {
+            if (item.imageUrl != null && !item.imageUrl.equals("")) {
                 final ImageView image = (ImageView) cardView.findViewById(R.id.image);
                 image.setVisibility(View.VISIBLE);
                 Log.d("listingadapter", "asking glide to load " + item.imageUrl);
@@ -122,29 +145,27 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
                         .load(item.imageUrl)
                         .centerCrop();
 
-                if(item.imageUrl.endsWith(".gif")) request.diskCacheStrategy(DiskCacheStrategy.SOURCE).centerCrop().into(image);
+                if (item.imageUrl.endsWith(".gif")) request.diskCacheStrategy(DiskCacheStrategy.SOURCE).into(image);
                 else request.into(image);
 
             } else cardView.findViewById(R.id.image).setVisibility(View.GONE);
 
-            ImageView avatar = (ImageView)cardView.findViewById(R.id.avatar);
             boolean generateLetter = false;
             try {
-                if(item.makerAvatar != null && !item.makerAvatar.equals("")) {
+                if (item.makerAvatar != null && !item.makerAvatar.equals("")) {
                     Glide.with(context)
                             .load(item.makerAvatar)
                             .into(avatar);
                 } else {
                     generateLetter = true;
                 }
-            }
-            catch(NullPointerException e) {
+            } catch (NullPointerException e) {
                 //so there's like this weird bug where twitter doesn't pass a content-type.
                 //glide doesn't know what to do and crashes.
                 generateLetter = true;
             }
 
-            if(generateLetter) {
+            if (generateLetter) {
                 Bitmap bitmap = drawableToBitmap(
                         TextDrawable
                                 .builder()
@@ -165,9 +186,9 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         }
     }
 
-    public static Bitmap drawableToBitmap (Drawable drawable) {
+    public static Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable)drawable).getBitmap();
+            return ((BitmapDrawable) drawable).getBitmap();
         }
 
         int width = drawable.getIntrinsicWidth();

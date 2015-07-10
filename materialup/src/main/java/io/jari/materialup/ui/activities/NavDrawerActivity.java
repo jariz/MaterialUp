@@ -5,6 +5,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 
+import butterknife.Bind;
 import io.jari.materialup.R;
 
 /**
@@ -12,8 +13,10 @@ import io.jari.materialup.R;
  */
 public class NavDrawerActivity extends BaseActivity {
 
-    private DrawerLayout mDrawerLayout;
-    private NavigationView mNavView;
+    @Bind(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
+    @Bind(R.id.nav_view)
+    NavigationView mNavView;
 
     @Override
     public void setContentView(int layoutResId) {

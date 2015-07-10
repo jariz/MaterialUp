@@ -11,13 +11,17 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.app.ActionBar;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import io.jari.materialup.R;
-import io.jari.materialup.adapters.DetailAdapter;
+import io.jari.materialup.adapters.CommentAdapter;
 import io.jari.materialup.api.API;
 import io.jari.materialup.api.Comment;
 import io.jari.materialup.api.Item;
@@ -27,12 +31,17 @@ import io.jari.materialup.api.ItemDetails;
  * Created by jari on 12/06/15.
  */
 public class ItemActivity extends BaseActivity {
-
+    @Bind(R.id.collapsing_toolbar)
     CollapsingToolbarLayout toolbarLayout;
+    @Bind(R.id.toolbar)
     Toolbar toolbar;
+    @Bind(R.id.recycler)
     RecyclerView recyclerView;
-    Item item;
-    DetailAdapter detailAdapter;
+    @Bind(R.id.progressBar)
+    ProgressBar progressBar;
+
+    private Item item;
+    private CommentAdapter commentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,20 +49,21 @@ public class ItemActivity extends BaseActivity {
 
         setContentView(R.layout.activity_item);
 
-        toolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
-        item = (Item)getIntent().getSerializableExtra("item");
+        ButterKnife.bind(this);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        item = (Item) getIntent().getSerializableExtra("item");
+
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(item.title);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(item.title);
 
         //set up recycler
-        recyclerView = (RecyclerView) findViewById(R.id.recycler);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(new DetailAdapter(new Comment[0], item, ItemActivity.this));
+        commentAdapter = new CommentAdapter(new Comment[0], item, ItemActivity.this);
+        recyclerView.setAdapter(commentAdapter);
 
         final BitmapImageViewTarget header = new BitmapImageViewTarget((ImageView) findViewById(R.id.backdrop)) {
             @Override
@@ -62,7 +72,7 @@ public class ItemActivity extends BaseActivity {
                 Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
                     public void onGenerated(Palette p) {
                         int color = p.getVibrantColor(R.attr.colorPrimary);
-                        detailAdapter.setColor(color);
+                        commentAdapter.setColor(color);
 
                         toolbarLayout.setContentScrimColor(color);
                         toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.dark)));
@@ -133,11 +143,10 @@ public class ItemActivity extends BaseActivity {
     }
 
     public void dismissLoader() {
-        final View prog = findViewById(R.id.progressBar);
-        prog.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+        progressBar.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                prog.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

@@ -16,7 +16,7 @@ import java.util.Arrays;
 /**
  * Created by jari on 14/06/15.
  */
-public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder> {
+public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
 
     public static final int TYPE_DETAILS = 100;
 
@@ -25,7 +25,7 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
     private Item item;
     private int color;
 
-    public DetailAdapter(Comment[] dataSet, Item details, Activity context) {
+    public CommentAdapter(Comment[] dataSet, Item details, Activity context) {
         this.dataSet = new ArrayList<Comment>(Arrays.asList(dataSet));
         this.context = context;
         this.item = details;
@@ -55,7 +55,7 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
     }
 
     @Override
-    public DetailAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CommentAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         int resource;
         switch(viewType) {
             case TYPE_DETAILS:
