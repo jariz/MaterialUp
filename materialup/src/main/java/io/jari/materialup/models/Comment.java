@@ -1,4 +1,4 @@
-package io.jari.materialup.api;
+package io.jari.materialup.models;
 
 import java.io.Serializable;
 

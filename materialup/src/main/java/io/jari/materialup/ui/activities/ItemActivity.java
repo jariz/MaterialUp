@@ -23,9 +23,9 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import io.jari.materialup.R;
 import io.jari.materialup.adapters.CommentAdapter;
 import io.jari.materialup.api.API;
-import io.jari.materialup.api.Comment;
-import io.jari.materialup.api.Item;
-import io.jari.materialup.api.ItemDetails;
+import io.jari.materialup.models.Comment;
+import io.jari.materialup.models.Item;
+import io.jari.materialup.models.ItemDetails;
 
 /**
  * Created by jari on 12/06/15.
@@ -56,7 +56,7 @@ public class ItemActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(item.title);
+        actionBar.setTitle(item.getTitle());
 
         //set up recycler
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -94,7 +94,7 @@ public class ItemActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    final ItemDetails itemDetails = API.getItemDetails(item.id);
+                    final ItemDetails itemDetails = API.getItemDetails(item.getId());
 
                     runOnUiThread(new Runnable() {
                         @Override

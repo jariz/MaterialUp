@@ -8,7 +8,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,27 +16,38 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.github.florent37.materialviewpager.MaterialViewPager;
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.florent37.materialviewpager.adapter.RecyclerViewMaterialAdapter;
+
+import java.util.List;
+import java.util.Random;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.jari.materialup.R;
 import io.jari.materialup.adapters.ListingAdapter;
 import io.jari.materialup.api.API;
-import io.jari.materialup.api.Item;
-import io.jari.materialup.api.ItemDetails;
+import io.jari.materialup.models.Item;
+import io.jari.materialup.models.ItemDetails;
+import io.jari.materialup.connection.UpRequests;
+import io.jari.materialup.exeptions.ItemException;
+import io.jari.materialup.exeptions.ItemImageException;
+import io.jari.materialup.interfaces.ItemCallback;
+import io.jari.materialup.interfaces.ItemImageCallBack;
+import io.jari.materialup.responses.ItemResponse;
+import io.jari.materialup.utils.StringUtils;
 import jp.wasabeef.glide.transformations.ColorFilterTransformation;
-
-import java.util.Random;
 
 /**
  * Created by jari on 01/06/15.
  */
-public class ListingFragment extends Fragment {
+public class ListingFragment extends BaseFragment implements ItemCallback, ItemImageCallBack {
 
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
@@ -46,18 +56,16 @@ public class ListingFragment extends Fragment {
     @Bind(R.id.progressBar)
     ProgressBar progressBar;
 
-    private ListingAdapter listingAdapter;
-    private View view;
-    private Item[] items;
+    private List<Item> items;
     private String path;
     private int color;
-    private boolean popular;
-    private boolean unitialized = true;
+    private boolean uninitialized = true;
 
     private Drawable headerDrawable;
-    private ItemDetails headerDetails;
-    private MaterialViewPager pager;
     private boolean active;
+    private String mQueryParameter;
+    private MaterialViewPager mMaterialViewPager;
+    private ItemDetails headerDetails;
 
     public static ListingFragment newInstance(String path, boolean popular, int color) {
         ListingFragment listingFragment = new ListingFragment();
@@ -69,22 +77,33 @@ public class ListingFragment extends Fragment {
         return listingFragment;
     }
 
+    public static ListingFragment newInstance(String path, int color) {
+        ListingFragment listingFragment = new ListingFragment();
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence("path", path);
+        bundle.putInt("color", color);
+        listingFragment.setArguments(bundle);
+        return listingFragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Bundle arguments = getArguments();
         if (arguments != null) {
-            this.path = arguments.getString("path");
-            this.popular = arguments.getBoolean("popular");
-            this.color = arguments.getInt("color");
+            path = arguments.getString("path");
+            if (arguments.getBoolean("popular")) {
+                mQueryParameter = "popular";
+            }
+            color = arguments.getInt("color");
         }
 
-        view = inflater.inflate(R.layout.listing, container, false);
+        View view = inflater.inflate(R.layout.listing, container, false);
 
         ButterKnife.bind(this, view);
 
         //set up recycler
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
@@ -96,32 +115,25 @@ public class ListingFragment extends Fragment {
     }
 
     public void setActive(final MaterialViewPager pager) {
+        this.mMaterialViewPager = pager;
         active = true;
-        this.pager = pager;
 
         //fallback to primary color if color passed equals to 0
-        if (color == 0) color = getResources().getColor(R.color.primary);
-
-        pager.setColor(color, 400);
-        Log.i("LF.setActive", "Color set to " + color);
-//        pager.setImageDrawable(new ColorDrawable(getResources().getColor(android.R.color.transparent)), 400);
-
-        //check if we've been active before. if not, start loading data.
-        Log.d("LF.setActive", "unitialized = " + unitialized);
-        if (unitialized) {
-            unitialized = false;
-
-            //load initial data (without refresh)
-            loadData(false);
+        if (color == 0) {
+            color = getResources().getColor(R.color.primary);
         }
 
-        if (items == null) {
-            Log.i("LF.setActive", "No items set, not downloading header and waiting for loadData to call me.");
-            return;
+        pager.setColor(color, 400);
+
+        if (uninitialized) {
+            uninitialized = false;
+
+            if (!StringUtils.isEmpty(path)) {
+                UpRequests.getItemDetails(path, mQueryParameter, this);
+            }
         }
 
         if (headerDrawable != null) {
-            Log.i("LF.setActive", "Setting cached header");
             pager.setImageDrawable(headerDrawable, 400);
             return;
         }
@@ -131,12 +143,12 @@ public class ListingFragment extends Fragment {
             public void run() {
                 try {
                     //get random item
-                    Item item = items[new Random().nextInt(items.length)];
+                    Item item = items.get(new Random().nextInt(items.size()));
 
-                    if(headerDetails == null)
-                        headerDetails = API.getItemDetails(item.id);
+                    if (headerDetails == null)
+                        headerDetails = API.getItemDetails(item.getId());
 
-                    if(headerDetails.imageUrl == null) {
+                    if (headerDetails.imageUrl == null) {
                         //no suitable image found, remove the image from drawer, leaving just the color
                         pager.setImageDrawable(new ColorDrawable(getResources().getColor(android.R.color.transparent)), 400);
                     }
@@ -173,56 +185,6 @@ public class ListingFragment extends Fragment {
         }).start();
     }
 
-    public void loadData(final boolean refresh) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    items = API.getListing(path + (popular ? "?sort=popular" : ""), getActivity(), 1);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //set up recycler content
-                            listingAdapter = new ListingAdapter(new Item[0], getActivity());
-                            RecyclerViewMaterialAdapter recyclerViewMaterialAdapter = new RecyclerViewMaterialAdapter(listingAdapter);
-                            recyclerView.setAdapter(recyclerViewMaterialAdapter);
-                            MaterialViewPagerHelper.registerRecyclerView(getActivity(), recyclerView, null);
-
-                            if (active && !refresh) {
-                                //retrigger setActive now that the list is loaded
-                                ListingFragment.this.setActive((MaterialViewPager) getActivity().findViewById(R.id.material_view_pager));
-                            }
-
-                            if (refresh) {
-                                swipeRefreshLayout.setRefreshing(false);
-                                listingAdapter.removeAll();
-                            }
-
-                            listingAdapter.addItems(items);
-                        }
-                    });
-
-                } catch (Exception e) {
-//                    errorSnack(e);
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (refresh)
-                                    swipeRefreshLayout.setRefreshing(false);
-                                else dismissLoader();
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }
-
     public void dismissLoader() {
         progressBar.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
             @Override
@@ -230,5 +192,35 @@ public class ListingFragment extends Fragment {
                 progressBar.setVisibility(View.GONE);
             }
         });
+    }
+
+    @Override
+    public void onItemSuccess(ItemResponse response) {
+        items = response.getItemList();
+        ListingAdapter listingAdapter = new ListingAdapter(items, getActivity());
+        RecyclerViewMaterialAdapter recyclerViewMaterialAdapter = new RecyclerViewMaterialAdapter(listingAdapter);
+        recyclerView.setAdapter(recyclerViewMaterialAdapter);
+        MaterialViewPagerHelper.registerRecyclerView(getActivity(), recyclerView, null);
+
+        if (active) {
+            setActive((MaterialViewPager) getActivity().findViewById(R.id.material_view_pager));
+        }
+
+        dismissLoader();
+    }
+
+    @Override
+    public void onItemError(ItemException error) {
+        Toast.makeText(mActivity, error.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemImageSuccess(String imageUrl) {
+
+    }
+
+    @Override
+    public void onItemImageError(ItemImageException error) {
+
     }
 }

@@ -53,6 +53,8 @@ dependencies {
     compile ('com.github.florent37:materialviewpager:1.0.5@aar') { transitive = true }
     compile 'com.android.support:design:22.2.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
+    compile 'com.squareup.okio:okio:1.4.0'
     compile 'com.pkmmte.view:circularimageview:1.1'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile('com.github.florent37:materialimageloading:1.0.1@aar') { transitive = true }
@@ -61,4 +63,8 @@ dependencies {
     compile 'jp.wasabeef:glide-transformations:1.0.6@aar'
     compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.2.3@aar'
     compile 'com.jakewharton:butterknife:7.0.1'
+
+
+    compile 'com.mcxiaoke.volley:library:1.0.16@aar'
+
 }

@@ -4,10 +4,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.ViewGroup;
+
+import com.github.florent37.materialviewpager.MaterialViewPager;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import com.github.florent37.materialviewpager.MaterialViewPager;
 import io.jari.materialup.R;
+import io.jari.materialup.factories.ListingFactory;
 import io.jari.materialup.ui.fragments.ListingFragment;
 
 /**
@@ -40,8 +43,9 @@ public class MainActivity extends NavDrawerActivity {
             public void setPrimaryItem(ViewGroup container, int position, Object object) {
                 super.setPrimaryItem(container, position, object);
 
-                if (position == oldPosition)
+                if (position == oldPosition) {
                     return;
+                }
                 oldPosition = position;
 
                 ListingFragment listingFragment = (ListingFragment) object;
@@ -57,42 +61,18 @@ public class MainActivity extends NavDrawerActivity {
 
             @Override
             public Fragment getItem(int position) {
-
-                switch (position) {
-                    case 0:
-                        return ListingFragment.newInstance("posts/c/all", false, getResources().getColor(R.color.primary));
-                    case 1:
-                        return ListingFragment.newInstance("posts/c/concepts", false, getResources().getColor(R.color.red_600));
-                    case 2:
-                        return ListingFragment.newInstance("posts/c/live", false, getResources().getColor(R.color.teal_600));
-                    case 3:
-                        return ListingFragment.newInstance("posts/c/resources", false, getResources().getColor(R.color.yellow_600));
-                    case 4:
-                        return ListingFragment.newInstance("posts/c/freebies", false, getResources().getColor(R.color.orange_600));
-                }
-                return null;
+                return ListingFactory.getFragForPosition(position, MainActivity.this);
             }
 
             @Override
             public CharSequence getPageTitle(int position) {
-                switch (position) {
-                    case 0:
-                        return "All";
-                    case 1:
-                        return "Concepts";
-                    case 2:
-                        return "Live";
-                    case 3:
-                        return "Resources";
-                    case 4:
-                        return "Freebies";
-                }
-                return "";
+                return ListingFactory.getTitleForPosition(position);
             }
         });
 
         materialViewPager.getPagerTitleStrip().setViewPager(materialViewPager.getViewPager());
-        materialViewPager.getToolbar().setTitle("MaterialUp");
+        materialViewPager.getToolbar().setTitle(getString(R.string.app_name));
 
     }
+
 }

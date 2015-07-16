@@ -17,9 +17,18 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.jari.materialup.models.Comment;
+import io.jari.materialup.models.Item;
+import io.jari.materialup.models.ItemDetails;
+
 /**
  * Created by jari on 07/06/15.
+ * 
+ * This class are Deprecated by @sicareli. You should use
+ * {@link io.jari.materialup.connection.UpRequests}
+ * now.
  */
+@Deprecated
 public class API {
 
     public static Item[] getListing(String path, Context context, Integer page) throws IOException {
@@ -29,49 +38,48 @@ public class API {
         Elements elements = document.select(".post-list-items .post-list-item");
         for (Element element : elements) {
             Item item = new Item();
-            item.id = element.attr("id");
-            item.title = element.select("h2").first().text();
-            if (item.title.equals("")) continue;
-            item.imageUrl = element.select("img.preview").first().attr("data-cfsrc");
-            if (item.imageUrl == null || item.imageUrl == "") continue;
+            item.setId(element.attr("id"));
+            item.setTitle(element.select("h2").first().text());
+            if (item.getTitle().equals("")) continue;
+            item.setImageUrl(element.select("img.preview").first().attr("data-cfsrc"));
+            if (item.getImageUrl() == null || item.getImageUrl() == "") continue;
             Element score = element.select("div.count").first();
             if (score != null)
-                item.score = score.text();
-            else item.score = "0";
+                item.setScore(score.text());
+            else item.setScore("0");
 
-            item.views = element.select(".post__stats a:eq(0)").first().ownText();
-            item.comments = element.select(".post__stats a:eq(1)").first().ownText();
+            item.setViews(element.select(".post__stats a:eq(0)").first().ownText());
+            item.setComments(element.select(".post__stats a:eq(1)").first().ownText());
 
             Element label = element.select(".post__label").first();
             if (label != null)
-                item.label = label.attr("alt").split(" ")[0];
-            else item.label = "";
+                item.setLabel(label.attr("alt").split(" ")[0]);
+            else item.setLabel("");
 
             Element category = element.select("a[href^=/posts/c]").first();
-            item.categoryLink = category.attr("href");
-            item.categoryName = category.text();
+            item.setCategoryLink(category.attr("href"));
+            item.setCategoryName(category.text());
 
             Element maker = category.nextElementSibling();
             if (maker != null) {
-                item.makerName = maker.text();
-                item.makerUrl = maker.attr("href");
+                item.setMakerName(maker.text());
+                item.setMakerUrl(maker.attr("href"));
             } else {
                 //no url, try to get name eitherway
                 String[] parts = category.parent().text().split(" by ");
                 if (parts.length > 1)
-                    item.makerName = parts[1];
+                    item.setMakerName(parts[1]);
             }
 
-            if (item.makerName == null) continue;
+            if (item.getMakerName() == null) continue;
 
             Element avatar = element.select(".avatar").first();
             if (avatar != null) {
-                item.makerAvatar = avatar.attr("data-cfsrc");
+                item.setMakerAvatar(avatar.attr("data-cfsrc"));
             }
 
             items.add(item);
         }
-
 
         Item[] returnList = new Item[items.size()];
         items.toArray(returnList);
@@ -93,7 +101,7 @@ public class API {
 
         Element img = document.select("img.preview").first();
 
-        if(img != null)
+        if (img != null)
             itemDetails.imageUrl = img.attr("src");
 
         return itemDetails;
@@ -108,8 +116,8 @@ public class API {
         Response response = client.newCall(request).execute();
         JSONArray comments = new JSONArray(response.body().string());
 
-        for(int i = 0; i < comments.length(); i++) {
-            JSONObject jcomment = (JSONObject)comments.get(i);
+        for (int i = 0; i < comments.length(); i++) {
+            JSONObject jcomment = (JSONObject) comments.get(i);
         }
 
         return null;

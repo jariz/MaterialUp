@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import io.jari.materialup.R;
-import io.jari.materialup.api.Comment;
-import io.jari.materialup.api.Item;
+import io.jari.materialup.models.Comment;
+import io.jari.materialup.models.Item;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,9 +129,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
                 case TYPE_DETAILS:
                     item = (Item)object;
 
-                    ((TextView)view.findViewById(R.id.comments)).setText(item.comments);
-                    ((TextView)view.findViewById(R.id.views)).setText(item.views);
-                    ((TextView)view.findViewById(R.id.score)).setText(item.score);
+                    ((TextView)view.findViewById(R.id.comments)).setText(item.getComments());
+                    ((TextView)view.findViewById(R.id.views)).setText(item.getViews());
+                    ((TextView)view.findViewById(R.id.score)).setText(item.getScore());
 
                     break;
                 default:

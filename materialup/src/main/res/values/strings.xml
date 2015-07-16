@@ -5,4 +5,12 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="img_content_desc">loading</string>
+    <string name="all">all</string>
+    <string name="concepts">concepts</string>
+    <string name="live">live</string>
+    <string name="resources">resources</string>
+    <string name="freebies">freebies</string>
+
+    <string name="error_connection">You are experiencing internet connection issues. Please verify.</string>
+
 </resources>

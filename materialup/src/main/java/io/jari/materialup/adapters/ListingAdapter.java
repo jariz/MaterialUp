@@ -13,29 +13,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.Bind;
-import butterknife.ButterKnife;
+
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.bumptech.glide.DrawableRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import io.jari.materialup.R;
-import io.jari.materialup.ui.activities.ItemActivity;
-import io.jari.materialup.api.Item;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import io.jari.materialup.R;
+import io.jari.materialup.models.Item;
+import io.jari.materialup.ui.activities.ItemActivity;
 
 /**
  * Created by jari on 07/06/15.
  */
 public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHolder> {
-    private ArrayList<Item> dataSet;
+    private List<Item> dataSet;
     private Activity context;
 
-    public ListingAdapter(Item[] dataSet, Activity context) {
-        this.dataSet = new ArrayList<Item>(Arrays.asList(dataSet));
+    public ListingAdapter(List<Item> dataSet, Activity context) {
+        this.dataSet = dataSet;
         this.context = context;
     }
 
@@ -45,15 +46,9 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         }
     }
 
-    public void add(Item item) {
-        dataSet.add(item);
+    public void addItems(List<Item> items) {
+        dataSet.addAll(items);
         notifyItemInserted(dataSet.size() - 1);
-    }
-
-    public void addItems(Item[] items) {
-        for (Item item : items) {
-            add(item);
-        }
     }
 
     public void remove(Item item) {
@@ -118,43 +113,43 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         @Bind(R.id.avatar)
         ImageView avatar;
 
-
         public void update(Item item) {
             this.item = item;
-            title.setText(item.title);
-            details.setText(item.categoryName + " by " + item.makerName);
+            title.setText(item.getTitle());
+            details.setText(item.getCategoryName() + " by " + item.getMakerName());
 
-            if (item.label.equals("")) {
+            if (item.getLabel().equals("")) {
                 label.setVisibility(View.GONE);
             } else {
                 label.setVisibility(View.VISIBLE);
-                label.setBackgroundColor(ColorGenerator.MATERIAL.getColor(item.label));
-                label.setText(item.label);
+                label.setBackgroundColor(ColorGenerator.MATERIAL.getColor(item.getLabel()));
+                label.setText(item.getLabel());
             }
 
-            score.setText(item.score);
-            comments.setText(item.comments);
-            views.setText(item.views);
+            score.setText(item.getScore());
+            comments.setText(item.getComments());
+            views.setText(item.getViews());
 
-            if (item.imageUrl != null && !item.imageUrl.equals("")) {
+            if (item.getImageUrl() != null && !item.getImageUrl().equals("")) {
                 final ImageView image = (ImageView) cardView.findViewById(R.id.image);
                 image.setVisibility(View.VISIBLE);
-                Log.d("listingadapter", "asking glide to load " + item.imageUrl);
+                Log.d("listingadapter", "asking glide to load " + item.getImageUrl());
 
                 DrawableRequestBuilder<String> request = Glide.with(context)
-                        .load(item.imageUrl)
+                        .load(item.getImageUrl())
                         .centerCrop();
 
-                if (item.imageUrl.endsWith(".gif")) request.diskCacheStrategy(DiskCacheStrategy.SOURCE).into(image);
+                if (item.getImageUrl().endsWith(".gif"))
+                    request.diskCacheStrategy(DiskCacheStrategy.SOURCE).into(image);
                 else request.into(image);
 
             } else cardView.findViewById(R.id.image).setVisibility(View.GONE);
 
             boolean generateLetter = false;
             try {
-                if (item.makerAvatar != null && !item.makerAvatar.equals("")) {
+                if (item.getMakerAvatar() != null && !item.getMakerAvatar().equals("")) {
                     Glide.with(context)
-                            .load(item.makerAvatar)
+                            .load(item.getMakerAvatar())
                             .into(avatar);
                 } else {
                     generateLetter = true;
@@ -170,8 +165,8 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
                         TextDrawable
                                 .builder()
                                 .buildRect(
-                                        item.makerName.substring(0, 1).toUpperCase(),
-                                        ColorGenerator.MATERIAL.getColor(item.makerName)
+                                        item.getMakerName().substring(0, 1).toUpperCase(),
+                                        ColorGenerator.MATERIAL.getColor(item.getMakerName())
                                 )
                 );
 
