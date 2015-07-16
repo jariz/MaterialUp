@@ -23,7 +23,7 @@ import io.jari.materialup.models.ItemDetails;
 
 /**
  * Created by jari on 07/06/15.
- * 
+ *
  * This class are Deprecated by @sicareli. You should use
  * {@link io.jari.materialup.connection.UpRequests}
  * now.

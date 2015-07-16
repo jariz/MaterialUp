@@ -6,6 +6,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <com.github.florent37.materialviewpager.MaterialViewPager
@@ -13,7 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:viewpager_color="@color/primary"
-        app:viewpager_pagerTitleStrip="@layout/material_view_pager_pagertitlestrip_newstand"
         app:viewpager_enableToolbarElevation="true"
         app:viewpager_headerAdditionalHeight="20dp"
         app:viewpager_headerAlpha="1.0"
@@ -22,6 +22,7 @@
         app:viewpager_hideToolbarAndTitle="true"
         app:viewpager_logo="@layout/header_logo"
         app:viewpager_logoMarginTop="40dp"
+        app:viewpager_pagerTitleStrip="@layout/material_view_pager_pagertitlestrip_newstand"
         app:viewpager_parallaxHeaderFactor="1.5" />
 
     <android.support.design.widget.NavigationView
