@@ -24,9 +24,11 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.jari.materialup.R;
 import io.jari.materialup.models.Item;
 import io.jari.materialup.ui.activities.ItemActivity;
+
 
 /**
  * Created by jari on 07/06/15.
@@ -111,7 +113,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         @Bind(R.id.views)
         TextView views;
         @Bind(R.id.avatar)
-        ImageView avatar;
+        CircleImageView avatar;
 
         public void update(Item item) {
             this.item = item;
