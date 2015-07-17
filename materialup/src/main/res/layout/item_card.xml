@@ -46,15 +46,13 @@
             android:layout_margin="8dp"
             android:orientation="horizontal">
 
-            <com.pkmmte.view.CircularImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/avatar"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_marginRight="8dp"
-                app:border="true"
                 app:border_color="#EEEEEE"
-                app:border_width="1dp"
-                app:shadow="true" />
+                app:border_width="1dp"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
