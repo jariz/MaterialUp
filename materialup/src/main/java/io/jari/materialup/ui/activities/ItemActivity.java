@@ -7,19 +7,21 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.app.ActionBar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import butterknife.Bind;
-import butterknife.ButterKnife;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.jari.materialup.R;
 import io.jari.materialup.adapters.CommentAdapter;
 import io.jari.materialup.api.API;
@@ -31,12 +33,16 @@ import io.jari.materialup.models.ItemDetails;
  * Created by jari on 12/06/15.
  */
 public class ItemActivity extends BaseActivity {
+
     @Bind(R.id.collapsing_toolbar)
     CollapsingToolbarLayout toolbarLayout;
+
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
+
     @Bind(R.id.progressBar)
     ProgressBar progressBar;
 
