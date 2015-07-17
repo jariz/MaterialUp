@@ -21,7 +21,7 @@ import java.util.Random;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.jari.materialup.R;
-import io.jari.materialup.adapters.ListingAdapter;
+import io.jari.materialup.adapters.CategoryAdapter;
 import io.jari.materialup.connection.UpRequests;
 import io.jari.materialup.exeptions.ItemException;
 import io.jari.materialup.exeptions.ItemImageException;
@@ -49,6 +49,7 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
     private List<Item> items;
     private String path;
     private String mQueryParameter;
+    private CategoryAdapter categoryAdapter;
 
     public static CategoryFragment newInstance(String path) {
         CategoryFragment categoryFragment = new CategoryFragment();
@@ -60,7 +61,7 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.listing, container, false);
+        mRootView = inflater.inflate(R.layout.fragment_category, container, false);
 
         init();
 
@@ -84,6 +85,20 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (!StringUtils.isEmpty(path)) {
+                    UpRequests.getItemDetails(path, mQueryParameter, CategoryFragment.this);
+                }
+            }
+        });
+
+        swipeRefreshLayout.setColorSchemeResources(R.color.accent_color,
+                R.color.accent,
+                android.R.color.white);
+
     }
 
     public void dismissLoader() {
@@ -98,8 +113,16 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
     @Override
     public void onItemSuccess(ItemResponse response) {
         items = response.getItemList();
-        ListingAdapter listingAdapter = new ListingAdapter(items, getActivity());
-        RecyclerViewMaterialAdapter recyclerViewMaterialAdapter = new RecyclerViewMaterialAdapter(listingAdapter);
+        if (categoryAdapter != null) {
+            categoryAdapter.removeAll();
+            categoryAdapter.notifyDataSetChanged();
+            categoryAdapter.addItems(items);
+            swipeRefreshLayout
+                    .setRefreshing(false);
+        } else {
+            categoryAdapter = new CategoryAdapter(items, getActivity());
+        }
+        RecyclerViewMaterialAdapter recyclerViewMaterialAdapter = new RecyclerViewMaterialAdapter(categoryAdapter);
         recyclerView.setAdapter(recyclerViewMaterialAdapter);
         MaterialViewPagerHelper.registerRecyclerView(getActivity(), recyclerView, null);
 
@@ -116,6 +139,8 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
     @Override
     public void onItemError(ItemException error) {
         Toast.makeText(mActivity, error.getMessage(), Toast.LENGTH_SHORT).show();
+        swipeRefreshLayout
+                .setRefreshing(false);
     }
 
     @Override
