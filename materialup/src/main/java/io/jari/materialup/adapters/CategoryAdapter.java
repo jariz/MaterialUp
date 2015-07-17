@@ -20,6 +20,7 @@ import com.bumptech.glide.DrawableRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -35,11 +36,16 @@ import io.jari.materialup.ui.activities.ItemActivity;
  */
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
     private List<Item> dataSet;
-    private Activity context;
+    private Activity mContext;
 
     public CategoryAdapter(List<Item> dataSet, Activity context) {
         this.dataSet = dataSet;
-        this.context = context;
+        this.mContext = context;
+    }
+
+    public CategoryAdapter(Activity context){
+        this.mContext = context;
+        this.dataSet = new ArrayList<>();
     }
 
     public void removeAll() {
@@ -66,7 +72,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         CardView card = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_card, parent, false);
 
-        return new ViewHolder(card, context);
+        return new ViewHolder(card, mContext);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
