@@ -1,6 +1,7 @@
 package io.jari.materialup.utils;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -69,7 +70,10 @@ public class ParseUtils {
     }
 
     public static String parseImageUrl(String response) throws JSONException {
-        Document document = Jsoup.parse(response);
+        JSONObject jsonObject = new JSONObject(response);
+        String html = jsonObject.getString("content");
+
+        Document document = Jsoup.parse(html);
 
         Element img = document.select("img.preview").first();
 

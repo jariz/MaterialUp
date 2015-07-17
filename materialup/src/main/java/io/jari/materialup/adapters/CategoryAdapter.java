@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.jari.materialup.factories.ListingFactory;
+import io.jari.materialup.factories.CategoryFactory;
 
 public class CategoryAdapter extends FragmentPagerAdapter {
 
@@ -33,6 +33,6 @@ public class CategoryAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return ListingFactory.getTitleForPosition(position);
+        return CategoryFactory.getTitleForPosition(position);
     }
 }

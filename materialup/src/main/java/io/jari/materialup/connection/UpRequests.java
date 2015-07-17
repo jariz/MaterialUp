@@ -2,11 +2,15 @@ package io.jari.materialup.connection;
 
 import android.net.Uri;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import io.jari.materialup.R;
 import io.jari.materialup.exeptions.ItemException;
@@ -64,18 +68,29 @@ public class UpRequests {
                     @Override
                     public void onResponse(String response) {
                         try {
+
                             String imageUrl = ParseUtils.parseImageUrl(response);
                             callback.onItemImageSuccess(imageUrl);
                         } catch (JSONException e) {
                             callback.onItemImageError(new ItemImageException(UpApplication.getInstance().getString(R.string.error_connection)));
                         }
                     }
-                }, new Response.ErrorListener() {
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        callback.onItemImageError(new ItemImageException(UpApplication.getInstance().getString(R.string.error_connection)));
+                    }
+                }
+        ) {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                callback.onItemImageError(new ItemImageException(UpApplication.getInstance().getString(R.string.error_connection)));
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept", "application/json");
+
+                return params;
             }
-        });
+        };
 
         VolleySingleton.getInstance().addToRequestQueue(stringRequest);
 

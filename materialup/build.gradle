@@ -50,7 +50,7 @@ dependencies {
     compile 'com.android.support:cardview-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'org.jsoup:jsoup:1.8.2'
-    compile ('com.github.florent37:materialviewpager:1.0.5@aar') { transitive = true }
+    compile ('com.github.florent37:materialviewpager:1.0.7@aar') { transitive = true }
     compile 'com.android.support:design:22.2.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
