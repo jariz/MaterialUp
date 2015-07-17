@@ -9,7 +9,7 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <com.pkmmte.view.CircularImageView
         android:id="@+id/avatar"
         android:layout_width="42dp"
         android:layout_height="42dp" />
