@@ -27,8 +27,9 @@ import io.jari.materialup.utils.StringUtils;
  */
 public class UpRequests {
 
-    public static void getItemDetails(String path, String sort, final ItemCallback callback) {
-
+    public static void getItemDetails(String path, String sort,int pageNum, final ItemCallback callback) {
+        //TODO: find a way to integrate pageNum parameter into the query parameters of the request
+        // whenever pagination is supported
         Uri.Builder uriBuilder = new Uri.Builder()
                 .scheme("http").authority("materialup.com")
                 .appendPath("posts")

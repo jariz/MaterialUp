@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,12 +31,15 @@ import io.jari.materialup.interfaces.ItemImageCallBack;
 import io.jari.materialup.models.Item;
 import io.jari.materialup.responses.ItemResponse;
 import io.jari.materialup.ui.activities.MainActivity;
+import io.jari.materialup.ui.listeners.EndlessRecyclerOnScrollListener;
 import io.jari.materialup.utils.StringUtils;
 
 /**
  * Created by jari on 01/06/15.
  */
 public class CategoryFragment extends BaseFragment implements ItemCallback, ItemImageCallBack {
+
+    private static final String TAG = CategoryFragment.class.getName();
 
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
@@ -46,7 +50,6 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
     @Bind(R.id.progressBar)
     ProgressBar progressBar;
 
-    private List<Item> items;
     private String path;
     private String mQueryParameter;
     private CategoryAdapter categoryAdapter;
@@ -77,20 +80,45 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
         }
 
         if (!StringUtils.isEmpty(path)) {
-            UpRequests.getItemDetails(path, mQueryParameter, this);
+            UpRequests.getItemDetails(path, mQueryParameter, 1, this);
         }
 
         ButterKnife.bind(this, mRootView);
+
+        //initialize the adapter with empty data set
+        categoryAdapter = new CategoryAdapter(getActivity());
+        RecyclerViewMaterialAdapter recyclerViewMaterialAdapter = new RecyclerViewMaterialAdapter(categoryAdapter);
+        recyclerView.setAdapter(recyclerViewMaterialAdapter);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
+        //set on scroll listener for infinite scrolling
+        EndlessRecyclerOnScrollListener mOnScrollListener = new EndlessRecyclerOnScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int current_page) {
+                if (!StringUtils.isEmpty(path)) {
+                    UpRequests.getItemDetails(path, mQueryParameter, current_page, CategoryFragment.this);
+                }
+            }
+        };
+        recyclerView.addOnScrollListener(mOnScrollListener);
+
+        //register the on scroll listener as per the documentation
+        MaterialViewPagerHelper.registerRecyclerView(getActivity(), recyclerView, mOnScrollListener);
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 if (!StringUtils.isEmpty(path)) {
-                    UpRequests.getItemDetails(path, mQueryParameter, CategoryFragment.this);
+                    if (categoryAdapter != null) {
+                        int size = categoryAdapter.getItemCount();
+                        categoryAdapter.removeAll();
+                        categoryAdapter.notifyItemRangeRemoved(0, size);
+                        ((RecyclerViewMaterialAdapter) recyclerView.getAdapter()).mvp_notifyDataSetChanged();
+                    }
+                    UpRequests.getItemDetails(path, mQueryParameter, 1, CategoryFragment.this);
                 }
             }
         });
@@ -112,26 +140,21 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
 
     @Override
     public void onItemSuccess(ItemResponse response) {
-        items = response.getItemList();
+        List<Item> items = response.getItemList();
         if (categoryAdapter != null) {
-            categoryAdapter.removeAll();
-            categoryAdapter.notifyDataSetChanged();
+            int currentSize = categoryAdapter.getItemCount();
             categoryAdapter.addItems(items);
+            categoryAdapter.notifyItemRangeInserted(currentSize, items.size());
+            ((RecyclerViewMaterialAdapter) recyclerView.getAdapter()).mvp_notifyDataSetChanged();
             swipeRefreshLayout
                     .setRefreshing(false);
-        } else {
-            categoryAdapter = new CategoryAdapter(items, getActivity());
+            Log.i(TAG, "Total items : " + categoryAdapter.getItemCount());
         }
-        RecyclerViewMaterialAdapter recyclerViewMaterialAdapter = new RecyclerViewMaterialAdapter(categoryAdapter);
-        recyclerView.setAdapter(recyclerViewMaterialAdapter);
-        MaterialViewPagerHelper.registerRecyclerView(getActivity(), recyclerView, null);
-
-        getRandomCover();
-
+        getRandomCover(items);
         dismissLoader();
     }
 
-    private void getRandomCover() {
+    private void getRandomCover(List<Item> items) {
         Item item = items.get(new Random().nextInt(items.size()));
         UpRequests.getItemImage(item.getId(), this);
     }
