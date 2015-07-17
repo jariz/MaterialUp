@@ -34,7 +34,8 @@ public class UpRequests {
                 .scheme("http").authority("materialup.com")
                 .appendPath("posts")
                 .appendPath("c")
-                .appendPath(path);
+                .appendPath(path)
+                .appendQueryParameter("page",String.valueOf(pageNum));
 
         if (!StringUtils.isEmpty(sort)) {
             uriBuilder.appendQueryParameter("sort", sort);
