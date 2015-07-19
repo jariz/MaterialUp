@@ -2,16 +2,20 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 
 repositories {
     jcenter()
     mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 android {
@@ -66,5 +70,8 @@ dependencies {
 
 
     compile 'com.mcxiaoke.volley:library:1.0.16@aar'
+    compile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
+        transitive = true;
+    }
 
 }
