@@ -15,8 +15,8 @@ import io.jari.materialup.responses.ItemResponse;
  */
 public class ParseUtils {
 
-    public static ItemResponse parseItens(String response) {
-        ItemResponse itensResponse = new ItemResponse();
+    public static ItemResponse parseItems(String response) {
+        ItemResponse itemsResponse = new ItemResponse();
         Document document = Jsoup.parse(response);
         Elements elements = document.select(".post-list-items .post-list-item");
 
@@ -26,7 +26,7 @@ public class ParseUtils {
             item.setTitle(element.select("h2").first().text());
             if (item.getTitle().equals("")) continue;
             item.setImageUrl(element.select("img.preview").first().attr("data-cfsrc"));
-            if (item.getImageUrl() == null || item.getImageUrl() == "") continue;
+            if (item.getImageUrl() == null || "".equals(item.getImageUrl())) continue;
             Element score = element.select("div.count").first();
             if (score != null)
                 item.setScore(score.text());
@@ -62,10 +62,10 @@ public class ParseUtils {
                 item.setMakerAvatar(avatar.attr("data-cfsrc"));
             }
 
-            itensResponse.getItemList().add(item);
+            itemsResponse.getItemList().add(item);
         }
 
-        return itensResponse;
+        return itemsResponse;
 
     }
 

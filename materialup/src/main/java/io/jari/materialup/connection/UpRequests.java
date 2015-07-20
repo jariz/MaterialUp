@@ -44,8 +44,8 @@ public class UpRequests {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        ItemResponse itensResponse = ParseUtils.parseItens(response);
-                        callback.onItemSuccess(itensResponse);
+                        ItemResponse itemsResponse = ParseUtils.parseItems(response);
+                        callback.onItemSuccess(itemsResponse);
                     }
                 }, new Response.ErrorListener() {
             @Override
