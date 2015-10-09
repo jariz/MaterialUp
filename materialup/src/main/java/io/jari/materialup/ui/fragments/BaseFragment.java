@@ -1,6 +1,6 @@
 package io.jari.materialup.ui.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -16,9 +16,9 @@ public class BaseFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        mActivity = (BaseActivity) activity;
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        mActivity = (BaseActivity) context;
+        super.onAttach(context);
     }
 
 }

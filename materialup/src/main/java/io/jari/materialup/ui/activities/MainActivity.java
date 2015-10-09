@@ -10,7 +10,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.github.florent37.materialviewpager.MaterialViewPager;
-import com.github.florent37.materialviewpager.header.HeaderDesign;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -53,12 +52,7 @@ public class MainActivity extends NavDrawerActivity {
             }
         });
 
-        materialViewPager.setMaterialViewPagerListener(new MaterialViewPager.Listener() {
-            @Override
-            public HeaderDesign getHeaderDesign(int position) {
-                return CategoryFactory.getHeaderDesign(position);
-            }
-        });
+        materialViewPager.setMaterialViewPagerListener(CategoryFactory::getHeaderDesign);
 
         materialViewPager.getPagerTitleStrip().setViewPager(materialViewPager.getViewPager());
         materialViewPager.getToolbar().setTitle(getString(R.string.app_name));
