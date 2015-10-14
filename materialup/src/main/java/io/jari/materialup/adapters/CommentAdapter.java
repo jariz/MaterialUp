@@ -5,13 +5,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import io.jari.materialup.R;
-import io.jari.materialup.models.Comment;
-import io.jari.materialup.models.Item;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import io.jari.materialup.R;
+import io.jari.materialup.models.Comment;
+import io.jari.materialup.models.Item;
 
 /**
  * Created by jari on 14/06/15.
@@ -122,7 +122,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         }
 
         public void update(Object object) {
-            Item item;
+            /*Item item;
             Comment comment;
 
             switch(viewType) {
@@ -139,7 +139,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
                     comment = (Comment)object;
 
                     break;
-            }
+            }*/
         }
     }
 }

@@ -1,7 +1,6 @@
 package io.jari.materialup.factories;
 
 import android.content.Context;
-import android.content.res.Resources;
 
 import com.github.florent37.materialviewpager.header.HeaderDesign;
 
@@ -15,7 +14,6 @@ import io.jari.materialup.ui.fragments.CategoryFragment;
 public class CategoryFactory {
 
     public static CategoryFragment getFragForPosition(int position, Context context) {
-        Resources res = context.getResources();
         switch (position) {
             case PageTypes.TYPE_ALL:
                 return CategoryFragment.newInstance(context.getString(R.string.all));

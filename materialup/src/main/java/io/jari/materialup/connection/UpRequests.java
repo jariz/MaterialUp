@@ -1,33 +1,21 @@
 package io.jari.materialup.connection;
 
-import android.net.Uri;
+import java.util.List;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-
-import org.json.JSONException;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import io.jari.materialup.R;
-import io.jari.materialup.exeptions.ItemException;
-import io.jari.materialup.exeptions.ItemImageException;
+import io.jari.materialup.api.PostsService;
 import io.jari.materialup.global.UpApplication;
 import io.jari.materialup.interfaces.ItemCallback;
-import io.jari.materialup.interfaces.ItemImageCallBack;
-import io.jari.materialup.responses.ItemResponse;
-import io.jari.materialup.utils.ParseUtils;
-import io.jari.materialup.utils.StringUtils;
+import io.jari.materialup.models.Item;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 /**
  * Created by rsicarelli on 7/15/15.
  */
 public class UpRequests {
 
-    public static void getItemDetails(String path, String sort,int pageNum, final ItemCallback callback) {
+/*    public static void getItemDetails(String path, String sort,int pageNum, final ItemCallback callback) {
         //TODO: find a way to integrate pageNum parameter into the query parameters of the request
         // whenever pagination is supported
         Uri.Builder uriBuilder = new Uri.Builder()
@@ -96,6 +84,22 @@ public class UpRequests {
 
         VolleySingleton.getInstance().addToRequestQueue(stringRequest);
 
-    }
+    }*/
 
+    public static void getPosts(int daysBack, ItemCallback callback) {
+        //TODO instead of passing callback as a variable, return a function that can be invoked on the callback
+        PostsService service = UpApplication.getInstance().getAPIComponent().getPostsService();
+        service.getAllPosts(daysBack).enqueue(new Callback<List<Item>>() {
+            @Override
+            public void onResponse(Response<List<Item>> response, Retrofit retrofit) {
+                if (response.isSuccess())
+                    callback.onItemSuccess(response.body());
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
+    }
 }
