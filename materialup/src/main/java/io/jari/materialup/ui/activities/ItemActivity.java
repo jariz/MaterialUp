@@ -16,18 +16,18 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+
+import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.jari.materialup.R;
 import io.jari.materialup.adapters.CommentAdapter;
-import io.jari.materialup.api.API;
 import io.jari.materialup.models.Comment;
 import io.jari.materialup.models.Item;
-import io.jari.materialup.models.ItemDetails;
+import io.jari.materialup.utils.ParseUtils;
 
 /**
  * Created by jari on 12/06/15.
@@ -49,6 +49,12 @@ public class ItemActivity extends BaseActivity {
     private Item item;
     private CommentAdapter commentAdapter;
 
+    public static void launch(Activity activity, Item item) {
+        Intent intent = new Intent(activity, ItemActivity.class);
+        intent.putExtra("item", ParseUtils.convertModelToJson(item));
+        activity.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,12 +63,19 @@ public class ItemActivity extends BaseActivity {
 
         ButterKnife.bind(this);
 
-        item = (Item) getIntent().getSerializableExtra("item");
+        if (getIntent().hasExtra("item")) {
+            try {
+                item = ParseUtils.convertJsonToModel(getIntent().getStringExtra("item"), Item.class);
+            } catch (IOException e) {
+                finish();
+            }
+        } else
+            finish();
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(item.getTitle());
+        actionBar.setTitle(item.getName());
 
         //set up recycler
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -75,14 +88,18 @@ public class ItemActivity extends BaseActivity {
             @Override
             public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
                 super.onResourceReady(bitmap, glideAnimation);
-                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
-                    public void onGenerated(Palette p) {
-                        int color = p.getVibrantColor(R.attr.colorPrimary);
-                        commentAdapter.setColor(color);
+                Palette.generateAsync(bitmap, p -> {
 
-                        toolbarLayout.setContentScrimColor(color);
-                        toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.dark)));
+                    int color = 0;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        color = p.getVibrantColor(getColor(R.color.primary));
+                    } else {
+                        color = p.getVibrantColor(getResources().getColor(R.color.primary, getTheme()));
                     }
+                    commentAdapter.setColor(color);
+
+                    toolbarLayout.setContentScrimColor(color);
+                    toolbarLayout.setStatusBarScrimColor(p.getDarkVibrantColor(getResources().getColor(R.color.dark)));
                 });
             }
         };
@@ -96,30 +113,24 @@ public class ItemActivity extends BaseActivity {
 //                .into((ImageView) findViewById(R.id.backdrop));
 
         //now load hq pic
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final ItemDetails itemDetails = API.getItemDetails(item.getId());
+/*        new Thread(() -> {
+            try {
+                final ItemDetails itemDetails = API.getItemDetails(item.getId());
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dismissLoader();
-                            Glide.with(getApplicationContext())
-                                    .load(itemDetails.imageUrl)
+                runOnUiThread(() -> {
+                    dismissLoader();
+                    Glide.with(getApplicationContext())
+                            .load(itemDetails.imageUrl)
 //                                    .crossFade()
 //                                    .into((ImageView) findViewById(R.id.backdrop));
-                                    .asBitmap()
-                                    .into(header);
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
+                            .asBitmap()
+                            .into(header);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }).start();
+
+        }).start();*/
 
 //        new Thread(new Runnable() {
 //            @Override
@@ -140,12 +151,6 @@ public class ItemActivity extends BaseActivity {
 //                });
 //            }
 //        }).start();
-    }
-
-    public static void launch(Activity activity, Item item) {
-        Intent intent = new Intent(activity, ItemActivity.class);
-        intent.putExtra("item", item);
-        activity.startActivity(intent);
     }
 
     public void dismissLoader() {

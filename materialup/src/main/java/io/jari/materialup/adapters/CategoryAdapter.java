@@ -1,51 +1,51 @@
 package io.jari.materialup.adapters;
 
-import android.app.Activity;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
-import com.bumptech.glide.DrawableRequestBuilder;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.jari.materialup.BR;
 import io.jari.materialup.R;
+import io.jari.materialup.databinding.ItemCardBinding;
 import io.jari.materialup.models.Item;
-import io.jari.materialup.ui.activities.ItemActivity;
+import io.jari.materialup.ui.viewmodels.ItemViewModel;
 
 
 /**
  * Created by jari on 07/06/15.
  */
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
-    private List<Item> dataSet;
-    private Activity mContext;
+    private List<Item> dataSet = new ArrayList<>();
 
-    public CategoryAdapter(List<Item> dataSet, Activity context) {
-        this.dataSet = dataSet;
-        this.mContext = context;
-    }
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        }
 
-    public CategoryAdapter(Activity context){
-        this.mContext = context;
-        this.dataSet = new ArrayList<>();
+        int width = drawable.getIntrinsicWidth();
+        width = width > 0 ? width : 200;
+        int height = drawable.getIntrinsicHeight();
+        height = height > 0 ? height : 200;
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 
     public void removeAll() {
@@ -69,16 +69,16 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @Override
     public CategoryAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
-        CardView card = (CardView) LayoutInflater.from(parent.getContext())
+        View card = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_card, parent, false);
 
-        return new ViewHolder(card, mContext);
+        return new ViewHolder(card);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.update(dataSet.get(position));
+        holder.getBinding().setVariable(BR.itemVM, new ItemViewModel(dataSet.get(position)));
     }
 
     @Override
@@ -87,31 +87,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public CardView cardView;
-        public Activity context;
-        public Item item;
-
-        public ViewHolder(CardView v, final Activity context) {
-            super(v);
-            cardView = v;
-            this.context = context;
-
-            ButterKnife.bind(this, v);
-
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ItemActivity.launch(context, item);
-                }
-            });
-        }
-
-        @Bind(R.id.title)
-        TextView title;
-        @Bind(R.id.details)
-        TextView details;
-        @Bind(R.id.label)
-        TextView label;
         @Bind(R.id.score)
         TextView score;
         @Bind(R.id.comments)
@@ -120,24 +95,19 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         TextView views;
         @Bind(R.id.avatar)
         CircleImageView avatar;
+        private ItemCardBinding mBinding;
 
-        public void update(Item item) {
-            this.item = item;
-            title.setText(item.getTitle());
-            details.setText(item.getCategoryName() + " by " + item.getMakerName());
+        public ViewHolder(View v) {
+            super(v);
+            mBinding = DataBindingUtil.bind(v);
+//            v.setOnClickListener(v1 -> ItemActivity.launch(context, ));
+        }
 
-            if (item.getLabel().equals("")) {
-                label.setVisibility(View.GONE);
-            } else {
-                label.setVisibility(View.VISIBLE);
-                label.setBackgroundColor(ColorGenerator.MATERIAL.getColor(item.getLabel()));
-                label.setText(item.getLabel());
-            }
+        public ViewDataBinding getBinding() {
+            return mBinding;
+        }
 
-            score.setText(item.getScore());
-            comments.setText(item.getComments());
-            views.setText(item.getViews());
-
+        /*public void update(Item item) {
             if (item.getImageUrl() != null && !item.getImageUrl().equals("")) {
                 final ImageView image = (ImageView) cardView.findViewById(R.id.image);
                 image.setVisibility(View.VISIBLE);
@@ -186,24 +156,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                 );
             }
 
-        }
-    }
-
-    public static Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        }
-
-        int width = drawable.getIntrinsicWidth();
-        width = width > 0 ? width : 200;
-        int height = drawable.getIntrinsicHeight();
-        height = height > 0 ? height : 200;
-
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
+        }*/
     }
 }

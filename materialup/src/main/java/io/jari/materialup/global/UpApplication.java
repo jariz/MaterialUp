@@ -3,30 +3,20 @@ package io.jari.materialup.global;
 import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 
 import io.fabric.sdk.android.Fabric;
-import io.jari.materialup.BuildConfig;
+import io.jari.materialup.dagger.components.ApiServicesComponent;
+import io.jari.materialup.dagger.components.DaggerApiServicesComponent;
+import io.jari.materialup.dagger.components.DaggerMaterialUpComponent;
+import io.jari.materialup.dagger.components.MaterialUpComponent;
+import io.jari.materialup.dagger.modules.AndroidModule;
 
 
 public class UpApplication extends Application {
 
     private static UpApplication mInstance;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Fabric.with(this,
-                new Crashlytics.Builder().core(
-                        new CrashlyticsCore.Builder().disabled(
-                                !BuildConfig.USE_CRASHLYTICS)
-                                .build())
-                        .build()
-        );
-
-        Fabric.with(this, new Crashlytics());
-        mInstance = this;
-    }
+    private MaterialUpComponent mComponent;
+    private ApiServicesComponent mApiComponent;
 
     /**
      * Singleton pattern
@@ -37,5 +27,25 @@ public class UpApplication extends Application {
         return mInstance;
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Fabric.with(this, new Crashlytics());
+        mInstance = this;
+        setupDaggerGraph();
+    }
+
+    private void setupDaggerGraph() {
+        mComponent = DaggerMaterialUpComponent.builder().androidModule(new AndroidModule(this)).build();
+        mApiComponent = DaggerApiServicesComponent.builder().materialUpComponent(mComponent).build();
+    }
+
+    public MaterialUpComponent getDaggerComponent() {
+        return mComponent;
+    }
+
+    public ApiServicesComponent getAPIComponent() {
+        return mApiComponent;
+    }
 
 }

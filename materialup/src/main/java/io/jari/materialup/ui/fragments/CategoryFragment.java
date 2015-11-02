@@ -29,15 +29,17 @@ import io.jari.materialup.exeptions.ItemImageException;
 import io.jari.materialup.interfaces.ItemCallback;
 import io.jari.materialup.interfaces.ItemImageCallBack;
 import io.jari.materialup.models.Item;
-import io.jari.materialup.responses.ItemResponse;
 import io.jari.materialup.ui.activities.MainActivity;
 import io.jari.materialup.ui.listeners.EndlessRecyclerOnScrollListener;
 import io.jari.materialup.utils.StringUtils;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 /**
  * Created by jari on 01/06/15.
  */
-public class CategoryFragment extends BaseFragment implements ItemCallback, ItemImageCallBack {
+public class CategoryFragment extends BaseFragment implements ItemCallback, ItemImageCallBack, Callback<Item> {
 
     private static final String TAG = CategoryFragment.class.getName();
 
@@ -80,13 +82,13 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
         }
 
         if (!StringUtils.isEmpty(path)) {
-            UpRequests.getItemDetails(path, mQueryParameter, 1, this);
+            UpRequests.getPosts(0, this);
         }
 
         ButterKnife.bind(this, mRootView);
 
         //initialize the adapter with empty data set
-        categoryAdapter = new CategoryAdapter(getActivity());
+        categoryAdapter = new CategoryAdapter();
         RecyclerViewMaterialAdapter recyclerViewMaterialAdapter = new RecyclerViewMaterialAdapter(categoryAdapter);
         recyclerView.setAdapter(recyclerViewMaterialAdapter);
 
@@ -99,7 +101,7 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
             @Override
             public void onLoadMore(int current_page) {
                 if (!StringUtils.isEmpty(path)) {
-                    UpRequests.getItemDetails(path, mQueryParameter, current_page, CategoryFragment.this);
+                    UpRequests.getPosts(current_page, CategoryFragment.this);
                 }
             }
         };
@@ -108,18 +110,16 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
         //register the on scroll listener as per the documentation
         MaterialViewPagerHelper.registerRecyclerView(getActivity(), recyclerView, mOnScrollListener);
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (!StringUtils.isEmpty(path)) {
-                    if (categoryAdapter != null) {
-                        int size = categoryAdapter.getItemCount();
-                        categoryAdapter.removeAll();
-                        categoryAdapter.notifyItemRangeRemoved(0, size);
-                        ((RecyclerViewMaterialAdapter) recyclerView.getAdapter()).mvp_notifyDataSetChanged();
-                    }
-                    UpRequests.getItemDetails(path, mQueryParameter, 1, CategoryFragment.this);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (!StringUtils.isEmpty(path)) {
+                if (categoryAdapter != null) {
+                    int size = categoryAdapter.getItemCount();
+                    categoryAdapter.removeAll();
+                    categoryAdapter.notifyItemRangeRemoved(0, size);
+                    ((RecyclerViewMaterialAdapter) recyclerView.getAdapter()).mvp_notifyDataSetChanged();
                 }
+
+                UpRequests.getPosts(0, CategoryFragment.this);
             }
         });
 
@@ -139,24 +139,23 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
     }
 
     @Override
-    public void onItemSuccess(ItemResponse response) {
-        List<Item> items = response.getItemList();
+    public void onItemSuccess(List<Item> response) {
         if (categoryAdapter != null) {
             int currentSize = categoryAdapter.getItemCount();
-            categoryAdapter.addItems(items);
-            categoryAdapter.notifyItemRangeInserted(currentSize, items.size());
+            categoryAdapter.addItems(response);
+            categoryAdapter.notifyItemRangeInserted(currentSize, response.size());
             ((RecyclerViewMaterialAdapter) recyclerView.getAdapter()).mvp_notifyDataSetChanged();
             swipeRefreshLayout
                     .setRefreshing(false);
             Log.i(TAG, "Total items : " + categoryAdapter.getItemCount());
         }
-        getRandomCover(items);
+        getRandomCover(response);
         dismissLoader();
     }
 
     private void getRandomCover(List<Item> items) {
         Item item = items.get(new Random().nextInt(items.size()));
-        UpRequests.getItemImage(item.getId(), this);
+//        UpRequests.getItemImage(item.getId(), this);
     }
 
     @Override
@@ -176,4 +175,13 @@ public class CategoryFragment extends BaseFragment implements ItemCallback, Item
         Toast.makeText(mActivity, error.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onResponse(Response<Item> response, Retrofit retrofit) {
+
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+
+    }
 }
